@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link >
+  <title>World Time Dashboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background: radial-gradient(circle at top, #0a1f44, #010b1d);
+      color: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 50px 20px;
+    }
+
+    h1 {
+      font-size: 2.7rem;
+      text-align: center;
+      margin-bottom: 20px;
+      background: linear-gradient(90deg, #0ff, #00d4ff, #00ff9d);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .search-bar {
+      width: 100%;
+      max-width: 500px;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 25px;
+      border: none;
+      outline: none;
+      font-size: 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .search-bar input:focus {
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+    }
+
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .time-card {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 25px 20px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .time-card:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 6px 25px rgba(0, 255, 204, 0.3);
+    }
+
+    .city {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .flag {
+      font-size: 1.5rem;
+      margin-right: 6px;
+    }
+
+    .time {
+      font-size: 1.3rem;
+      color: #0ff;
+      font-weight: 500;
+    }
+
+    .date {
+      font-size: 0.95rem;
+      margin-top: 8px;
+      color: #b0b0b0;
+    }
+
+    .timezone {
+      font-size: 0.85rem;
+      margin-top: 5px;
+      color: #7da1b3;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 0.9rem;
+      color: #8a8a8a;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Live World Time Dashboard</h1>
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search for a city..." />
+  </div>
+
+  <div class="time-grid" id="timeGrid"></div>
+
+  <footer>Live Updates on the all times around the world. Updates every second</footer>
+
+  <script>
+    const cities = [
+      { name: "New York", tz: "America/New_York", flag: "🗽" },
+      { name: "London", tz: "Europe/London", flag: "🇬🇧" },
+      { name: "Paris", tz: "Europe/Paris", flag: "🇫🇷" },
+      { name: "Tokyo", tz: "Asia/Tokyo", flag: "🇯🇵" },
+      { name: "Beijing", tz: "Asia/Shanghai", flag: "🇨🇳" },
+      { name: "Dubai", tz: "Asia/Dubai", flag: "🇦🇪" },
+      { name: "Toronto", tz: "America/Toronto", flag: "🍁" },
+      { name: "Mexico City", tz: "America/Mexico_City", flag: "🇲🇽" },
+      { name: "Sydney", tz: "Australia/Sydney", flag: "🇦🇺" },
+      { name: "Singapore", tz: "Asia/Singapore", flag: "🇸🇬" },
+      { name: "Moscow", tz: "Europe/Moscow", flag: "🇷🇺" },
+      { name: "Los Angeles", tz: "America/Los_Angeles", flag: "🎬" },
+      { name: "New Delhi", tz: "Asia/Kolkata", flag: "🇮🇳" },
+      { name: "Cape Town", tz: "Africa/Johannesburg", flag: "🇿🇦" },
+      { name: "Berlin", tz: "Europe/Berlin", flag: "🇩🇪" },
+      { name: "Rome", tz: "Europe/Rome", flag: "🇮🇹" },
+      { name: "São Paulo", tz: "America/Sao_Paulo", flag: "🇧🇷" },
+      { name: "Seoul", tz: "Asia/Seoul", flag: "🇰🇷" },
+      { name: "Istanbul", tz: "Europe/Istanbul", flag: "🇹🇷" },
+      { name: "Honolulu", tz: "Pacific/Honolulu", flag: "🏝️" },
+      { name: "Bangkok", tz: "Asia/Bangkok", flag: "🇹🇭" },
+      { name: "Jakarta", tz: "Asia/Jakarta", flag: "🇮🇩" },
+      { name: "Vancouver", tz: "America/Vancouver", flag: "🇨🇦" },
+      { name: "Buenos Aires", tz: "America/Argentina/Buenos_Aires", flag: "🇦🇷" },
+      { name: "Cairo", tz: "Africa/Cairo", flag: "🇪🇬" },
+      { name: "Nairobi", tz: "Africa/Nairobi", flag: "🇰🇪" },
+      { name: "Athens", tz: "Europe/Athens", flag: "🇬🇷" },
+      { name: "Madrid", tz: "Europe/Madrid", flag: "🇪🇸" }
+    ];
+
+    const grid = document.getElementById("timeGrid");
+    const searchInput = document.getElementById("searchInput");
+
+    function updateTime() {
+      const searchQuery = searchInput.value.toLowerCase();
+      grid.innerHTML = "";
+
+      cities
+        .filter(city => city.name.toLowerCase().includes(searchQuery))
+        .forEach(city => {
+          const now = new Date().toLocaleString("en-US", { timeZone: city.tz });
+          const dateObj = new Date(now);
+
+          const timeStr = dateObj.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit"
+          });
+
+          const dateStr = dateObj.toLocaleDateString([], {
+            weekday: "short",
+            year: "numeric",
+            month: "short",
+            day: "numeric"
+          });
+
+          const timeZoneStr = city.tz.replace("_", " ");
+
+          const card = document.createElement("div");
+          card.className = "time-card";
+          card.innerHTML = `
+            <div class="city"><span class="flag">${city.flag}</span>${city.name}</div>
+            <div class="time">${timeStr}</div>
+            <div class="date">${dateStr}</div>
+            <div class="timezone">${timeZoneStr}</div>
+          `;
+          grid.appendChild(card);
+        });
+    }
+
+    updateTime();
+    setInterval(updateTime, 1000);
+    searchInput.addEventListener("input", updateTime);
+  </script>
+</body>
+</html>
